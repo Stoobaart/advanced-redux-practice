@@ -5,7 +5,7 @@ import Products from './components/Shop/Products';
 import { useEffect, useRef } from 'react';
 import Notification from './components/UI/Notification';
 import { uiActions } from './store/ui';
-import { cartActions, sendCartData } from './store/cart';
+import { fetchCartData, sendCartData } from './store/cart-actions';
 
 function App() {
   const dispatch = useDispatch();
@@ -16,38 +16,14 @@ function App() {
 
   // Fetch cart data on initial render
   useEffect(() => {
-    const fetchCartData = async () => {
-      try {
-        const response = await fetch("https://redux-toolkit-practice-backend-default-rtdb.firebaseio.com/cart.json");
-
-        if (!response.ok) {
-          throw new Error("Fetching cart data failed.");
-        }
-
-        const data = await response.json();
-
-        if (data) {
-          dispatch(cartActions.replaceCart({
-            items: data.items || [],
-            totalQuantity: data.totalQuantity || 0
-          }));
-        }
-      } catch (error) {
-        dispatch(uiActions.showNotification({
-          status: 'error',
-          title: 'Error!',
-          message: 'Fetching cart data failed!'
-        }));
-      }
-    };
-
-    fetchCartData();
+    dispatch(fetchCartData()).then(() => {
+      isInitial.current = false;
+    });
   }, [dispatch]);
 
   useEffect(() => {
-    // Skip sending on initial render
+    // Skip sending until initial fetch completes
     if (isInitial.current) {
-      isInitial.current = false;
       return;
     }
 
