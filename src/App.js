@@ -5,7 +5,7 @@ import Products from './components/Shop/Products';
 import { useEffect, useRef } from 'react';
 import Notification from './components/UI/Notification';
 import { uiActions } from './store/ui';
-import { cartActions } from './store/cart';
+import { cartActions, sendCartData } from './store/cart';
 
 function App() {
   const dispatch = useDispatch();
@@ -51,38 +51,7 @@ function App() {
       return;
     }
 
-    const sendCartData = async () => {
-      dispatch(uiActions.showNotification({
-        status: 'pending',
-        title: 'Sending...',
-        message: 'Sending cart data!'
-      }));
-
-      try {
-        const response = await fetch("https://redux-toolkit-practice-backend-default-rtdb.firebaseio.com/cart.json", {
-          method: "PUT",
-          body: JSON.stringify(cart)
-        });
-
-        if (!response.ok) {
-          throw new Error("Sending cart data failed.");
-        }
-
-        dispatch(uiActions.showNotification({
-          status: 'success',
-          title: 'Success!',
-          message: 'Cart data sent successfully!'
-        }));
-      } catch (error) {
-        dispatch(uiActions.showNotification({
-          status: 'error',
-          title: 'Error!',
-          message: 'Sending cart data failed!'
-        }));
-      }
-    };
-
-    sendCartData();
+    dispatch(sendCartData(cart));
   }, [cart, dispatch]);
 
   // Auto-hide notification after 4 seconds
